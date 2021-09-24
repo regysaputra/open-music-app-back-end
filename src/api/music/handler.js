@@ -12,13 +12,13 @@ class MusicHandler {
         this.deleteMusicByIdHandler = this.deleteMusicByIdHandler.bind(this);
     }
 
-    postMusicHandler(request, h) {
+    async postMusicHandler(request, h) {
         try {
             this._validator.validateMusicPayload(request.payload);
 
             const { title, year, performer, genre, duration } = request.payload;
 
-            const music = this._service.addMusic({ title, year, performer, genre, duration });
+            const music = await this._service.addMusic({ title, year, performer, genre, duration });
 
             const response = h.response({
                 status: 'success',
@@ -58,8 +58,8 @@ class MusicHandler {
         
     }
 
-    getMusicHandler(request, h) {
-        const music = this._service.getMusic();
+    async getMusicHandler(request, h) {
+        const music = await this._service.getMusic();
 
         const musicRest = music.map(({year, genre, duration, insertedAt, updatedAt,...rest}) => ({...rest}));
 
@@ -71,10 +71,10 @@ class MusicHandler {
         };
     }
 
-    getMusicByIdHandler(request, h) {
+    async getMusicByIdHandler(request, h) {
         try {
             const { songId } = request.params;
-            const music = this._service.getMusicById(songId)
+            const music = await this._service.getMusicById(songId)
 
             return {
                 status: 'success',
@@ -106,12 +106,12 @@ class MusicHandler {
         }
     }
 
-    putMusicByIdHandler(request, h) {
+    async putMusicByIdHandler(request, h) {
         try{
             this._validator.validateMusicPayload(request.payload);
             const { songId } = request.params;
     
-            this._service.editMusicById(songId, request.payload);
+            await this._service.editMusicById(songId, request.payload);
 
             return{
                 status: "success",
@@ -142,10 +142,10 @@ class MusicHandler {
         }
     }
 
-    deleteMusicByIdHandler(request, h) {
+    async deleteMusicByIdHandler(request, h) {
         try{
             const { songId } = request.params;
-            this._service.deleteMusicById(songId);
+            await this._service.deleteMusicById(songId);
 
             return {
                 status: 'success',
