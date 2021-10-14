@@ -24,4 +24,9 @@ const mapDBToModel = ({ inserted_at, updated_at, ...args }) => ({
     updatedAt: updated_at,
 });
 
-module.exports = { mapDBToModel };
+const mapDBPlaylistToModel = ({ owner, ...args }) => ({
+    ...args,
+    username: owner,
+});
+
+module.exports = { mapDBToModel, mapDBPlaylistToModel };
