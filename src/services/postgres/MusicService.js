@@ -10,13 +10,12 @@ class MusicService{
     }
 
     async addMusic({ title, year, performer, genre, duration }) {
-        const id = nanoid(16);
+        const id = `song-${nanoid(16)}`;
         const insertedAt = new Date().toISOString();
-        const updatedAt = insertedAt;
         
         const query = {
             text: 'INSERT INTO music VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
-            values: [id, title, year, performer, genre, duration, insertedAt, updatedAt],
+            values: [id, title, year, performer, genre, duration, insertedAt, insertedAt],
         };
 
         const result = await this._pool.query(query);
@@ -29,9 +28,9 @@ class MusicService{
     }
 
     async getMusic() {
-        const result = await this._pool.query('SELECT * FROM music');
+        const result = await this._pool.query('SELECT id, title, performer FROM music');
 
-        return result.rows.map(mapDBToModel);
+        return result.rows;
     }
 
     async getMusicById(id) {
@@ -39,6 +38,7 @@ class MusicService{
           text: 'SELECT * FROM music WHERE id = $1',
           values: [id],
         };
+        
         const result = await this._pool.query(query);
      
         if (!result.rowCount) {

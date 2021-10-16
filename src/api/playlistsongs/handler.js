@@ -1,3 +1,5 @@
+const { successResponse } = require('../../utils/responses');
+
 class PlaylistSongsHandler {
   constructor(service, validator) {
     this._service = service;
@@ -18,14 +20,10 @@ class PlaylistSongsHandler {
         await this._service.verifyPlaylistAccess(playlistId, credentialId);
         await this._service.addSongToPlaylist(playlistId, songId);
 
-        const response = h.response({
-            status: 'success',
-            message: 'Lagu berhasil ditambahkan ke playlist',
+        return successResponse(h, {
+          responseMessage: 'Lagu berhasil ditambahkan ke playlist',
+          responseCode: 201,
         });
-
-        response.code(201);
-
-        return response;
   }
 
   async getMusicFromPlaylistByIdHandler(request, h) {
@@ -34,18 +32,13 @@ class PlaylistSongsHandler {
 
       await this._service.verifyPlaylistAccess(playlistId, credentialId);
 
-      const songs = await this._service.getSongFromPlaylist(playlistId);
+      const song = await this._service.getSongFromPlaylist(playlistId);
 
-      const response = h.response({
-        status: 'success',
-        data: {
-          songs,
+      return successResponse(h, {
+        responseData: {
+          songs: song,
         },
       });
-
-      response.code(200);
-
-      return response;
   }
 
   async deleteMusicFromPlaylistByIdHandler(request, h) {
@@ -61,10 +54,9 @@ class PlaylistSongsHandler {
 
       await this._service.deleteMusicFromPlaylist(playlistId, songId);
 
-      return {
-        status: 'success',
-        message: 'Lagu berhasil dihapus dari playlist'
-      }
+      return successResponse(h, {
+        responseMessage: 'Lagu berhasil dihapus dari playlist',
+      });
   }
 }
 

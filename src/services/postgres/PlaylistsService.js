@@ -1,6 +1,5 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const InvariantError = require('../../exceptions/InvariantError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
@@ -23,7 +22,7 @@ class PlaylistsService {
 
         const result = await this._pool.query(query);
 
-        if(!result.rows[0].id) {
+        if(!result.rows.length) {
             throw new InvariantError('Playlist gagal ditambahkan');
         }
 

@@ -4,6 +4,9 @@ require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 
+// error
+const errors = require('./api/errors');
+
 // music
 const music = require('./api/music');
 const MusicService = require('./services/postgres/MusicService');
@@ -41,7 +44,7 @@ const ClientError = require('./exceptions/ClientError')
 const init = async () => {
   const collaborationsService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationsService);
-  const playlistSongsService = new PlaylistSongsService(collaborationsService);
+  const playlistSongsService = new PlaylistSongsService(playlistsService, collaborationsService);
   const musicService = new MusicService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
@@ -56,40 +59,40 @@ const init = async () => {
     },
   });
 
-  server.ext('onPreResponse', (request, h) => {
-    // mendapatkan konteks response dari request
-    const { response } = request;
+  // server.ext('onPreResponse', (request, h) => {
+  //   // mendapatkan konteks response dari request
+  //   const { response } = request;
     
-    if (response instanceof Error) {
-      if (response instanceof ClientError) {
-        // membuat response baru dari response toolkit sesuai kebutuhan error handling
-        const newResponse = h.response({
-          status: 'fail',
-          message: response.message,
-        });
+  //   if (response instanceof Error) {
+  //     if (response instanceof ClientError) {
+  //       // membuat response baru dari response toolkit sesuai kebutuhan error handling
+  //       const newResponse = h.response({
+  //         status: 'fail',
+  //         message: response.message,
+  //       });
                         
-        newResponse.code(response.statusCode);
+  //       newResponse.code(response.statusCode);
         
-        return newResponse;
-      }
+  //       return newResponse;
+  //     }
       
-      if (response.message === 'Missing authentication') {
-        return h
-          .response({
-            status: 'fail',
-            message: response.message,
-          })
-          .code(401)
-      }
-      return h.response({
-          status: 'error',
-          message: 'Maaf, terjadi kegagalan pada server kami.',
-        }).code(500)
-    }
+  //     if (response.message === 'Missing authentication') {
+  //       return h
+  //         .response({
+  //           status: 'fail',
+  //           message: response.message,
+  //         })
+  //         .code(401)
+  //     }
+  //     return h.response({
+  //         status: 'error',
+  //         message: 'Maaf, terjadi kegagalan pada server kami.',
+  //       }).code(500)
+  //   }
   
-    // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
-    return response.continue || response;
-  });
+  //   // jika bukan ClientError, lanjutkan dengan response sebelumnya (tanpa terintervensi)
+  //   return response.continue || response;
+  // });
 
   // registrasi plugin eksternal
   await server.register([
@@ -116,6 +119,9 @@ const init = async () => {
   });
 
   await server.register([
+    {
+      plugin: errors,
+    },
     {
       plugin: music,
       options: {
