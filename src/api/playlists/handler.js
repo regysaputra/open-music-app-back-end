@@ -15,12 +15,12 @@ class PlaylistsHandler {
 
       const { name } = request.payload;
       const { id: credentialId } = request.auth.credentials;
-      const playlistId = await this._service.addPlaylist({ name, owner: credentialId });
+      const playlistsId = await this._service.addPlaylist({ name, owner: credentialId });
  
       return successResponse(h, {
         responseMessage: 'Playlist berhasil ditambahkan',
         responseData: {
-          playlistId,
+          playlistId: playlistsId,
         },
         responseCode: 201,
       });
